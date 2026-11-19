@@ -14,6 +14,7 @@ import { getProblem, generateStarterCode } from "@/lib/problems/problemRegistry"
 import { problemStorage } from "@/lib/problems/problemStorage";
 import { executeCode, explainError } from "@/lib/execution/executionClient";
 import type { ExecutionResult, TestCaseResult } from "@/lib/execution/executionTypes";
+import { useToast } from "@/components/ui/Toast";
 
 // ─── Status helpers ───────────────────────────────────────────────────────────
 const statusLabel: Record<string, string> = {
@@ -242,6 +243,7 @@ function TestCaseDetail({ tc }: { tc: TestCaseResult }) {
 
 // ─── Main page ────────────────────────────────────────────────────────────────
 export default function ProblemWorkspace() {
+  const toast = useToast();
   const params = useParams();
   const problemId = String(params?.id || "1");
   const problem = getProblem(problemId);
@@ -369,11 +371,17 @@ export default function ProblemWorkspace() {
       setHasRun(true);
       if (result.status === "accepted") {
         problemStorage.setStatus(problemId, "solved");
-      } else if (problemStorage.getStatus(problemId) !== "solved") {
-        problemStorage.setStatus(problemId, "attempted");
+        toast.success("Problem Solved!", `All ${result.totalTests} tests passed.`);
+      } else {
+        if (problemStorage.getStatus(problemId) !== "solved") {
+          problemStorage.setStatus(problemId, "attempted");
+        }
+        toast.error("Tests Failed", `${result.passedTests}/${result.totalTests} tests passed.`);
       }
     } catch (err: any) {
-      setExecError(err.message || "Submission service unavailable. Is the backend running?");
+      const msg = err.message || "Submission service unavailable. Is the backend running?";
+      setExecError(msg);
+      toast.error("Execution Error", msg);
     } finally {
       setIsSubmitting(false);
     }
