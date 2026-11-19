@@ -1,13 +1,25 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.exceptions import RequestValidationError
+from starlette.exceptions import HTTPException as StarletteHTTPException
 from app.core.config import settings
 from app.core.database import engine, Base
+from app.core.exceptions import (
+    StudyHubException,
+    studyhub_exception_handler,
+    http_exception_handler,
+    validation_exception_handler,
+)
 
 app = FastAPI(
-    title="StudyHub API",
+    title=settings.app_name,
     description="Backend API for StudyHub placement preparation platform",
-    version="1.0.0",
+    version=settings.app_version,
 )
+
+app.add_exception_handler(StudyHubException, studyhub_exception_handler)
+app.add_exception_handler(StarletteHTTPException, http_exception_handler)
+app.add_exception_handler(RequestValidationError, validation_exception_handler)
 
 from app.models import company, daily_plans, learning, practice, profile, resource, roadmap, templates, tools, settings as user_settings_model, community, resume_analysis
 from sqlalchemy import text
