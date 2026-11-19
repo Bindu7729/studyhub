@@ -56,7 +56,7 @@ class ResumeParser:
         """
         try:
             pdf_stream = io.BytesIO(file_content) if isinstance(file_content, (bytes, bytearray)) else file_content
-            pdf_reader = pypdf.PdfReader(pdf_stream)
+            pdf_reader = pypdf.PdfReader(pdf_stream, strict=False)
         except Exception as exc:
             logger.exception("Failed to read PDF")
             raise InvalidPdfError("The PDF file is invalid or corrupted.") from exc
@@ -104,22 +104,43 @@ class ResumeParser:
         # Count words and characters (without normalization)
         word_count = len(full_text.split())
         character_count = len(full_text)
+        detected_sections = self.detect_sections(normalized_text)
 
         result = {
             "text": normalized_text,
             "page_count": total_pages,
             "word_count": word_count,
             "character_count": character_count,
+            "detected_sections": detected_sections,
         }
 
         logger.info(
-            "Parsed PDF: %d pages, %d words, %d characters",
+            "Parsed PDF: %d pages, %d words, %d characters, %d sections",
             total_pages,
             word_count,
             character_count,
+            len(detected_sections),
         )
 
         return result
+
+    @staticmethod
+    def detect_sections(text: str) -> dict[str, str]:
+        """Detect standard professional resume sections from extracted text."""
+        import re
+        section_patterns = {
+            "education": r"(?i)\b(education|academic background|qualifications)\b",
+            "experience": r"(?i)\b(work experience|experience|employment history|internships)\b",
+            "skills": r"(?i)\b(technical skills|skills|technologies|proficiencies)\b",
+            "projects": r"(?i)\b(projects|academic projects|personal projects)\b",
+            "certifications": r"(?i)\b(certifications|certificates|licenses)\b",
+        }
+        found_sections: dict[str, str] = {}
+        for section_name, pattern in section_patterns.items():
+            match = re.search(pattern, text)
+            if match:
+                found_sections[section_name] = match.group(0)
+        return found_sections
 
     def parse_text(self, text: str) -> dict[str, Any]:
         """
