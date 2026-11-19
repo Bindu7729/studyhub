@@ -1,28 +1,51 @@
-# Pathward — Placement Preparation Platform
+# StudyHub — Placement Preparation & Technical Learning Platform
 
-A structured placement-preparation and technical-learning platform for engineering
-students: **Learn → Practice → Prepare → Build → Apply → Interview**.
+[![Backend CI](https://github.com/Bindu7729/studyhub/actions/workflows/backend-ci.yml/badge.svg)](https://github.com/Bindu7729/studyhub/actions/workflows/backend-ci.yml)
+[![Frontend CI](https://github.com/Bindu7729/studyhub/actions/workflows/frontend-ci.yml/badge.svg)](https://github.com/Bindu7729/studyhub/actions/workflows/frontend-ci.yml)
+![Next.js 16](https://img.shields.io/badge/Next.js-16-black?logo=next.js)
+![React 19](https://img.shields.io/badge/React-19-blue?logo=react)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.111+-009688?logo=fastapi)
+![Python](https://img.shields.io/badge/Python-3.12+-3776AB?logo=python)
+![TypeScript](https://img.shields.io/badge/TypeScript-5+-3178C6?logo=typescript)
 
-This is **Stage 1** of the build plan: the landing page, fully componentized and
-ready to grow into routed pages (`/learn`, `/roadmaps`, `/companies`, etc.) in
-later stages.
+A comprehensive placement-preparation and technical-learning platform for engineering students: **Learn → Practice → Prepare → Build → Apply → Interview**.
 
-> [!IMPORTANT]  
-> This project is split into a **Frontend** and **Backend**. Please see their respective documentation for setup, tech stack, and commands:
-> - 🖥️ [Frontend Documentation](./frontend/README.md)
-> - ⚙️ [Backend Documentation](./backend/README.md)
+StudyHub combines an interactive learning curriculum (437 topics), a multi-language coding playground (Python, Java, C, C++), curated company interview roadmaps, a community study hub, and an AI-driven resume ATS analyzer into a unified system.
 
-## Stack
+---
 
-- **Next.js 16** (App Router) + **React 19** + **TypeScript**
-- **Tailwind CSS v4** (CSS-based theme, see `app/globals.css`)
-- **Framer Motion** for scroll reveals, parallax and staged animations
-- **lucide-react** for icons
+## 🚀 Key Platform Features
 
-## Getting started
+1. **Interactive Code Playground & Practice Engine:** Multi-language code editor (powered by Monaco Editor) with sandboxed execution, visible and hidden test cases, and memory/time limit bounds.
+2. **Curriculum & Knowledge Map:** 437 structured learning topics across DSA, OOP, DBMS, OS, Computer Networks, and System Design with progress tracking.
+3. **Company Preparation Roadmaps:** Targeted interview prep paths and patterns for 11+ tech companies.
+4. **ATS Resume Analyzer:** Permissive PDF text extraction, section detection, and keyword density feedback.
+5. **Community Study Hub:** Real-time peer discussions, study groups, code sharing, and activity feeds.
+6. **AI Placement Copilot:** Contextual code explanations and complexity guidance powered by Groq LLM.
+
+---
+
+## 🛠️ Technology Stack
+
+- **Frontend:** Next.js 16 (App Router), React 19, TypeScript, Tailwind CSS v4, Framer Motion, Monaco Editor, Lucide React.
+- **Backend:** FastAPI, Python 3.12, Uvicorn, SQLAlchemy 2.0 (async), Alembic, Pydantic v2, PyPDF, Groq.
+- **Database:** SQLite (`pathward.db`) with async engine support (`aiosqlite`) and PostgreSQL compatibility.
+- **Testing & CI/CD:** PyTest, PyTest-Asyncio, HTTPX, GitHub Actions.
+
+---
+
+## 📖 Quick Setup & Development
+
+Detailed step-by-step instructions for running the frontend and backend locally, executing automated tests, and environment configurations are in the [Setup Guide](./SETUP_GUIDE.md).
 
 ```bash
-npm install
+# Backend (Port 8000)
+cd backend && python -m venv .venv && source .venv/bin/activate
+pip install -r requirements.txt
+uvicorn app.main:app --reload --port 8000
+
+# Frontend (Port 3000)
+cd frontend && npm install
 npm run dev
 ```
 
