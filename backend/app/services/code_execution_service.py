@@ -18,6 +18,15 @@ TIMEOUT_SECONDS = 6.0  # Execution timeout to prevent infinite loops
 COMPILE_TIMEOUT_SECONDS = 10.0
 
 
+def _get_isolated_env() -> Dict[str, str]:
+    """Returns a sanitized environment preventing user code from inspecting parent secrets."""
+    safe_keys = ["SYSTEMROOT", "PATH", "TEMP", "TMP", "COMSPEC", "PATHEXT", "LANG", "LC_ALL"]
+    safe_env = {k: os.environ[k] for k in safe_keys if k in os.environ}
+    safe_env["PYTHONIOENCODING"] = "utf-8"
+    safe_env["PYTHONDONTWRITEBYTECODE"] = "1"
+    return safe_env
+
+
 class CodeExecutionService:
     def __init__(self):
         self.python_bin = sys.executable
@@ -124,6 +133,7 @@ class CodeExecutionService:
             proc = subprocess.Popen(
                 [self.python_bin, str(entry_path.name)],
                 cwd=str(cwd),
+                env=_get_isolated_env(),
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -153,7 +163,11 @@ class CodeExecutionService:
                 "memory": "14.2 MB",
             }
         except subprocess.TimeoutExpired:
-            proc.kill()
+            try:
+                proc.kill()
+                proc.communicate(timeout=1.0)
+            except Exception:
+                pass
             return {
                 "status": "timeout",
                 "stdout": "",
@@ -206,6 +220,7 @@ class CodeExecutionService:
             run_proc = subprocess.Popen(
                 [self.java_bin, "-cp", str(cwd), class_name],
                 cwd=str(cwd),
+                env=_get_isolated_env(),
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -235,7 +250,11 @@ class CodeExecutionService:
                 "memory": "28.5 MB",
             }
         except subprocess.TimeoutExpired:
-            run_proc.kill()
+            try:
+                run_proc.kill()
+                run_proc.communicate(timeout=1.0)
+            except Exception:
+                pass
             return {
                 "status": "timeout",
                 "stdout": "",
@@ -282,6 +301,7 @@ class CodeExecutionService:
             run_proc = subprocess.Popen(
                 [str(out_bin)],
                 cwd=str(cwd),
+                env=_get_isolated_env(),
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -311,7 +331,11 @@ class CodeExecutionService:
                 "memory": "4.2 MB",
             }
         except subprocess.TimeoutExpired:
-            run_proc.kill()
+            try:
+                run_proc.kill()
+                run_proc.communicate(timeout=1.0)
+            except Exception:
+                pass
             return {
                 "status": "timeout",
                 "stdout": "",
@@ -358,6 +382,7 @@ class CodeExecutionService:
             run_proc = subprocess.Popen(
                 [str(out_bin)],
                 cwd=str(cwd),
+                env=_get_isolated_env(),
                 stdin=subprocess.PIPE,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
@@ -387,7 +412,11 @@ class CodeExecutionService:
                 "memory": "6.8 MB",
             }
         except subprocess.TimeoutExpired:
-            run_proc.kill()
+            try:
+                run_proc.kill()
+                run_proc.communicate(timeout=1.0)
+            except Exception:
+                pass
             return {
                 "status": "timeout",
                 "stdout": "",
