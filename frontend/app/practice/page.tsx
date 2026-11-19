@@ -5,6 +5,7 @@ import { motion, useReducedMotion, Variants } from "framer-motion";
 import Link from "next/link";
 import { Code2, Database, Laptop, ArrowRight, Clock, CheckCircle2 } from "lucide-react";
 import { PracticeHeader } from "@/components/practice/PracticeHeader";
+import { EmptyState } from "@/components/ui/EmptyState";
 import { practiceApi } from "@/lib/api/practice";
 import { PracticeAttemptLedger } from "@/types";
 
@@ -182,10 +183,14 @@ export default function PracticeHubPage() {
             </div>
           </div>
         ) : (
-          <div className="bg-[var(--surface-subdued)] border border-[var(--border)] rounded-2xl p-8 text-center">
-            <p className="text-[var(--ink-secondary)]">You haven't completed any practice sessions yet.</p>
-            <p className="text-sm text-[var(--ink-tertiary)] mt-1">Select one of the playgrounds above to get started.</p>
-          </div>
+          <EmptyState
+            title="No practice sessions completed yet"
+            description="Select any playground or problem set above to begin your first timed coding sprint."
+            actionLabel="Browse DSA Problems"
+            onAction={() => {
+              window.location.href = "/practice/problems";
+            }}
+          />
         )}
       </motion.div>
     </div>
