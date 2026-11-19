@@ -1,5 +1,10 @@
+from pathlib import Path
 from pydantic_settings import BaseSettings, SettingsConfigDict
 from typing import List
+
+BACKEND_DIR = Path(__file__).resolve().parent.parent.parent
+DEFAULT_DB_PATH = (BACKEND_DIR / "pathward.db").as_posix()
+DEFAULT_DATABASE_URL = f"sqlite+aiosqlite:///{DEFAULT_DB_PATH}"
 
 class Settings(BaseSettings):
     app_name: str = "StudyHub API"
@@ -13,7 +18,7 @@ class Settings(BaseSettings):
     supabase_service_role_key: str = ""
     
     # Database (PostgreSQL via asyncpg or SQLite fallback)
-    database_url: str = "sqlite+aiosqlite:///./pathward.db"
+    database_url: str = DEFAULT_DATABASE_URL
     
     # Groq LLM
     llm_provider: str = "groq"
