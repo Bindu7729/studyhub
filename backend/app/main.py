@@ -79,8 +79,29 @@ async def root():
 
 @app.get("/health")
 async def health_check():
+    from datetime import datetime, timezone
+    import time
+    db_status = "unknown"
+    db_latency_ms = None
+
+    try:
+        t0 = time.perf_counter()
+        async with engine.connect() as conn:
+            await conn.execute(text("SELECT 1"))
+        db_latency_ms = round((time.perf_counter() - t0) * 1000.0, 2)
+        db_status = "connected"
+    except Exception as e:
+        db_status = f"error: {str(e)}"
+
+    is_healthy = db_status == "connected"
     return {
-        "status": "healthy",
+        "status": "healthy" if is_healthy else "degraded",
+        "app": settings.app_name,
         "environment": settings.environment,
-        "version": "1.0.0"
+        "version": settings.app_version,
+        "database": {
+            "status": db_status,
+            "latency_ms": db_latency_ms,
+        },
+        "timestamp": datetime.now(timezone.utc).isoformat(),
     }
