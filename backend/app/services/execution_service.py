@@ -32,6 +32,7 @@ class ExecutionRequest(BaseModel):
     problemId: str
     functionSignature: FunctionSignature
     testCases: List[TestCase]
+    userId: Optional[str] = None
 
 
 class TestCaseResult(BaseModel):

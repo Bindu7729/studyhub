@@ -45,9 +45,41 @@ async def submit_code(request: ExecutionRequest):
 
     result = route_execution(request)
     
-    if result.status == "accepted":
-        # TODO: Update student daily streak status here
-        pass
+    if result.status == "accepted" and request.userId:
+        try:
+            from app.core.database import AsyncSessionLocal
+            from app.models.roadmap import UserDSAProblemProgress
+            from sqlalchemy.future import select
+            from datetime import datetime
+
+            async with AsyncSessionLocal() as session:
+                stmt = select(UserDSAProblemProgress).where(
+                    UserDSAProblemProgress.user_id == request.userId,
+                    UserDSAProblemProgress.problem_id == request.problemId
+                )
+                res = await session.execute(stmt)
+                prog = res.scalars().first()
+                now = datetime.utcnow()
+
+                if prog:
+                    prog.attempts = (prog.attempts or 0) + 1
+                    prog.status = "solved"
+                    prog.solved_at = now
+                    prog.attempted_at = now
+                else:
+                    new_prog = UserDSAProblemProgress(
+                        id=f"{request.userId}_{request.problemId}",
+                        user_id=request.userId,
+                        problem_id=request.problemId,
+                        status="solved",
+                        attempts=1,
+                        solved_at=now,
+                        attempted_at=now
+                    )
+                    session.add(new_prog)
+                await session.commit()
+        except Exception:
+            pass
 
     return result
 
