@@ -10,6 +10,7 @@ from app.core.exceptions import (
     http_exception_handler,
     validation_exception_handler,
 )
+from app.core.middleware import RequestLoggingMiddleware
 
 app = FastAPI(
     title=settings.app_name,
@@ -58,6 +59,7 @@ app.add_middleware(
     allow_headers=["*"],
     expose_headers=["*"],
 )
+app.add_middleware(RequestLoggingMiddleware)
 
 app.include_router(profile.router)
 app.include_router(dashboard.router)
