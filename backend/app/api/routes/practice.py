@@ -19,11 +19,31 @@ class AttemptCreate(BaseModel):
 
 @router.get("/sets/")
 @router.get("/sets")
-async def get_practice_sets():
+async def get_practice_sets(
+    domain: Optional[str] = None,
+    difficulty: Optional[str] = None,
+    search: Optional[str] = None,
+    limit: int = 50,
+    offset: int = 0,
+):
     async with AsyncSessionLocal() as session:
-        result = await session.execute(select(PracticeSet))
+        query = select(PracticeSet)
+        if domain:
+            query = query.where(PracticeSet.domain.ilike(f"%{domain}%"))
+        if difficulty:
+            query = query.where(PracticeSet.difficulty.ilike(difficulty))
+        if search:
+            query = query.where(PracticeSet.title.ilike(f"%{search}%"))
+
+        query = query.order_by(PracticeSet.title).offset(offset).limit(limit)
+        result = await session.execute(query)
         sets = result.scalars().all()
-        return {"sets": sets}
+        return {
+            "sets": sets,
+            "count": len(sets),
+            "limit": limit,
+            "offset": offset,
+        }
 
 @router.get("/sets/{set_id}")
 async def get_practice_set(set_id: str):
