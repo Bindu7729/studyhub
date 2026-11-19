@@ -130,10 +130,14 @@ async def get_comments(
     post_id: str,
     limit: int = Query(50, ge=1, le=100),
     offset: int = Query(0, ge=0),
-    user: Any = Depends(get_current_user),
+    order: str = Query("asc", pattern="^(asc|desc)$"),
+    user: Optional[Any] = Depends(get_optional_user),
 ):
+    limit_val = limit if isinstance(limit, int) else 50
+    offset_val = offset if isinstance(offset, int) else 0
+    order_val = order if isinstance(order, str) else "asc"
     async with AsyncSessionLocal() as session:
-        return await community_service.get_comments(session, post_id, limit, offset)
+        return await community_service.get_comments(session, post_id, limit_val, offset_val, order_val)
 
 
 @router.post("/posts/{post_id}/comments", response_model=PostCommentOut, status_code=201)

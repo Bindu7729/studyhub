@@ -369,11 +369,14 @@ async def get_comments(
     post_id: str,
     limit: int = 50,
     offset: int = 0,
+    order: str = "asc",
 ) -> List[PostCommentOut]:
+    order_str = str(order).lower() if isinstance(order, str) else "asc"
+    order_clause = PostComment.created_at.desc() if order_str == "desc" else PostComment.created_at.asc()
     result = await session.execute(
         select(PostComment)
         .where(PostComment.post_id == post_id)
-        .order_by(PostComment.created_at)
+        .order_by(order_clause)
         .offset(offset)
         .limit(limit)
     )
